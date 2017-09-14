@@ -15,8 +15,8 @@ import binascii
 try:
         import yara
 except:
-        print "[!] - ERROR: Could not import YARA..."
-        print "...did you install yara and yara-python? Exiting."
+        print("[!] - ERROR: Could not import YARA...")
+        print("...did you install yara and yara-python? Exiting.")
         sys.exit()
 
 
@@ -33,11 +33,11 @@ def build_ruleset():
 	if RULETYPE == "FILE":
 		try:
 			rules=yara.compile(str(RULES))
-			print "..... Ruleset Compilation Successful."
+			print("..... Ruleset Compilation Successful.")
 			return rules
 		except:
-			print "[!] - Could not compile YARA rule: %s" % RULES
-			print "Exiting."
+			print("[!] - Could not compile YARA rule: %s" % RULES)
+			print("Exiting.")
 			sys.exit()
 	
 	elif RULETYPE == "FOLDER":
@@ -49,45 +49,45 @@ def build_ruleset():
 			for yara_file in glob.glob(os.path.join(RULES, "*.yar")):
 				try:
 					yara.compile(str(yara_file))
-					print "..... Syntax appears to be OK: %s " % yara_file
+					print("..... Syntax appears to be OK: %s " % yara_file)
 					try:
 						with open(yara_file, "r") as sig_file:
 							file_contents=sig_file.read()
 							RULEDATA=RULEDATA + "\n" + file_contents
 					except:
-						print "..... SKIPPING: Could not open file for reading: %s " % yara_file
+						print("..... SKIPPING: Could not open file for reading: %s " % yara_file)
 				except:
-					print "..... SKIPPING: Could not compile rule: %s " % yara_file
+					print("..... SKIPPING: Could not compile rule: %s " % yara_file)
 			try:
 				rules=yara.compile(source=RULEDATA)
-				print "..... SUCCESS! Compiled noted yara rulesets.\n"
+				print("..... SUCCESS! Compiled noted yara rulesets.\n")
 				return rules
 			except:
-				print "[!] - Some catastropic error occurred in the compilation of signatureswithin the directory. Exiting."
+				print("[!] - Some catastropic error occurred in the compilation of signatureswithin the directory. Exiting.")
 				sys.exit()
 		else:
-			print "No files ending in .yar within: %s " % RULES
-			print "Exiting."
+			print("No files ending in .yar within: %s " % RULES)
+			print("Exiting.")
 			sys.exit()
 	
 	elif RULETYPE == "DEFAULT":
 		rules=yara.compile(str(RULES))
-		print "[+] - Ruleset Compilation Successful."
+		print("[+] - Ruleset Compilation Successful.")
 		return rules
 
 	else:
-		print "[!] - ERROR: Possible catastrophic error on build_ruleset. Exiting."
+		print("[!] - ERROR: Possible catastrophic error on build_ruleset. Exiting.")
 		sys.exit()
 
 def print_procedures():
-	print "[+] - PAGE_BRUTE running with the following options:"
-	print "\t[-] - FILE: %s" % FILE
-	print "\t[-] - PAGE_SIZE: %s" % PAGE_SIZE
-	print "\t[-] - RULES TYPE: %s" % RULETYPE
-	print "\t[-] - RULE LOCATION: %s" % RULES
-	print "\t[-] - INVERSION SCAN: %s" % INVERT
-	print "\t[-] - WORKING DIR: %s" % WORKING_DIR
-	print "\t=================\n"
+	print("[+] - PAGE_BRUTE running with the following options:")
+	print("\t[-] - FILE: %s" % FILE)
+	print("\t[-] - PAGE_SIZE: %s" % PAGE_SIZE)
+	print("\t[-] - RULES TYPE: %s" % RULETYPE)
+	print("\t[-] - RULE LOCATION: %s" % RULES)
+	print("\t[-] - INVERSION SCAN: %s" % INVERT)
+	print("\t[-] - WORKING DIR: %s" % WORKING_DIR)
+	print("\t=================\n")
 
 def main():
 
@@ -113,7 +113,7 @@ def main():
 	args = argument_parser.parse_args()
 
 	if len(sys.argv) < 2:
-		print argument_parser.print_help()
+		print(argument_parser.print_help())
 		sys.exit()
 
 	#::Check to see if file was provided::#
@@ -121,21 +121,21 @@ def main():
 		try:
 			with open(args.file):
 				FILE=args.file
-				print "[+] - PAGE_BRUTE processing file: %s" % FILE
+				print("[+] - PAGE_BRUTE processing file: %s" % FILE)
 		except:
-			print "[!] - Could not open %s. Exiting." % FILE
+			print("[!] - Could not open %s. Exiting." % FILE)
 			sys.exit()
 	else:
-		print "[!] - No file provided. Use -f, --file to provide a file. Exiting."
+		print("[!] - No file provided. Use -f, --file to provide a file. Exiting.")
 		sys.exit()
 
 	#::Check to see if page size provided::#
 	if args.size:
 		PAGE_SIZE=int(args.size)
-		NULL_REFERENCE= '\x00' * PAGE_SIZE
+		NULL_REFERENCE= b'\x00' * PAGE_SIZE
 	else:
 		PAGE_SIZE=4096
-		NULL_REFERENCE= '\x00' * PAGE_SIZE
+		NULL_REFERENCE= b'\x00' * PAGE_SIZE
 
 	#::Check if --scan-name provided::#
 	if args.scanname:
@@ -156,12 +156,12 @@ def main():
 			#::Is File?::#
 			if os.path.isfile(RULES):
 				RULETYPE="FILE"
-				print "[+] - YARA rule of File type provided for compilation: %s" % RULES
+				print("[+] - YARA rule of File type provided for compilation: %s" % RULES)
 			elif os.path.isdir(RULES):
-				print "[+] - YARA rule of Folder type provided for compilation: %s" % RULES
+				print("[+] - YARA rule of Folder type provided for compilation: %s" % RULES)
 				RULETYPE="FOLDER"
 		except:
-			print "[!] - Possible catastrophic error with the provided rule file...exiting."
+			print("[!] - Possible catastrophic error with the provided rule file...exiting.")
 			sys.exit()
 	else:
 		try:
@@ -169,7 +169,7 @@ def main():
 				RULES="default_signatures.yar"
 				RULETYPE="DEFAULT"
 		except:
-			print "[!] - Could not locate \"default_signature.yar\". Find it or provide custom signatures via --rules. Exiting."
+			print("[!] - Could not locate \"default_signature.yar\". Find it or provide custom signatures via --rules. Exiting.")
 			sys.exit()
 	
 	#::Compile rules::#
@@ -187,9 +187,9 @@ def main():
 		while True:
 			matched=False
 			raw_page=page_file.read(PAGE_SIZE)
-			if raw_page == "":
-				print "Done!"
-				print "Ending page_id is: %s" % page_id
+			if not raw_page:
+				print("Done!")
+				print("Ending page_id is: %s" % page_id)
 				break
 			if not is_block_null(raw_page):
                                 #::Determine if block is null...:
@@ -198,7 +198,7 @@ def main():
 						matched=True
 					else:
 						CHUNK_OUTPUT_DIR=os.path.join(WORKING_DIR,matches.rule)
-						print "        [!] FLAGGED BLOCK " + str(page_id) + ": " + matches.rule
+						print("        [!] FLAGGED BLOCK " + str(page_id) + ": " + matches.rule)
 
 						if not os.path.exists(CHUNK_OUTPUT_DIR):
 							os.makedirs(CHUNK_OUTPUT_DIR)
@@ -206,13 +206,13 @@ def main():
                                        		#::Save chunk to file::#
 						CHUNK_OUTPUT_FWD=os.path.join(CHUNK_OUTPUT_DIR,str(page_id) + ".block")
 						page_export=open(CHUNK_OUTPUT_FWD,'w+')
-						page_export.write(raw_page)
+						page_export.write(str(raw_page))
 						page_export.close()
 
 				if INVERT == True:
 					if matched == False:
 						CHUNK_OUTPUT_DIR=os.path.join(WORKING_DIR,"INVERTED-MATCH")
-						print "        [!] BLOCK DOES NOT MATCH ANY KNOWN SIGNATURE " + str(page_id)
+						print("        [!] BLOCK DOES NOT MATCH ANY KNOWN SIGNATURE " + str(page_id))
 						if not os.path.exists(CHUNK_OUTPUT_DIR):
 							os.makedirs(CHUNK_OUTPUT_DIR)
 
